@@ -25,12 +25,13 @@ SECRET_KEY = 'o2j0iefti=wilt47+gc1j#2jl+h(r1_&r2^2nt62dr%)or%oua'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'mashgame.apps.MashgameConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

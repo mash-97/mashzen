@@ -11,7 +11,7 @@
     <div>
 
     <div style="text-align: center">
-      <form action="{% url 'mashgame:join_user' %}" name="user_login_form" method="post">
+      <form action="{% url 'mashgame:join_login_user' %}" name="user_login_form" method="post">
         {% csrf_token %}
         {% if password_invalid %}
           <label style="color: red"><b>Password Invalid</b></label>
@@ -29,5 +29,7 @@
         <br>
         <button type="submit">Join</button>
       </form>
+      <br>
+      <a href="{% url 'mashgame:signup' %}">Create a new user</a>
     </div>
   </body>

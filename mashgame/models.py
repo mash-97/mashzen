@@ -49,7 +49,7 @@ class UserManager(models.Manager):
                 return None
         except User.DoesNotExist:
             print("\tException Happened: ", User.DoesNotExist)
-            return None
+        return None
 
 
 class User(models.Model):

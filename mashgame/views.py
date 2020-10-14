@@ -8,10 +8,10 @@ from django.urls import reverse
 from .models import User
 
 def mashgame(request):
-    if not "password_invalid" in list(request.session.keys()):
-        request.session["password_invalid"] = False
+    return render(request, "mashgame/mashgame.html", {})
 
-    return render(request, "mashgame/mashgame.html", {"password_invalid": request.session["password_invalid"]})
+def login(request):
+    return render(request, "mashgame/login.html", {})
 
 def signup(request):
     return render(request, "mashgame/signup.html", {})

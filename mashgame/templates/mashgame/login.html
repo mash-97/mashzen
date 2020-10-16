@@ -1,17 +1,9 @@
-{% load static %}
-<!DOCTYPE html>
+{% include 'mashgame/base.html' %}
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mashzen | Mashgame | Login</title>
-    <script src="{% static 'mashgame/jquery.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href={% static 'mashgame/base.css' %}>
-  </head>
-
+  {% block body %}
   <body>
     <div style="text-align: center">
-      <h1>Mashgame</h1>
+      <h3>Login</h3>
     <div>
 
     <div style="text-align: center">
@@ -23,10 +15,10 @@
         {% endif %}
         <label for="user_name"><b>Username</b></label>
         <br>
-        <input type="text" placeholder="user name" name="user_name" id="js_user_name" required>
+        <input type="text" placeholder="user name" name="user_name" id="js_user_name" autocomplete="off" autofocus required>
         <br>
         <br>
-        <label for="password"><b>Password</b></label>
+        <label for="password" id="js_password_label"><b>Password</b></label>
         <br>
         <input type="password" placeholder="password" name="password" id="js_password" minlength="4" maxlength="10" required >
         <br>
@@ -36,8 +28,10 @@
       <br>
       <a href="{% url 'mashgame:signup' %}">Create a new user</a>
     </div>
+    <div align="center">
+      <label id="js_reload"></label>
+    </div>
     {% block javascript %}
-      <!-- <script src="{% static 'mashgame/validation.js' %}"></script> -->
       <script>
         $("#js_user_name").keyup(function(){
           var user_name = $(this).val();
@@ -53,10 +47,12 @@
                 document.getElementById("js_user_name").style.borderColor = "read";
                 $("#js_password").hide();
                 $("#js_login_button").hide();
+                $("#js_password_label").hide();
 
               }
               else{
                 document.getElementById("js_user_name").style.borderColor = "green";
+                $("#js_password_label").show();
                 $("#js_password").show();
                 $("#js_login_button").show();
               }
@@ -66,3 +62,5 @@
       </script>
     {% endblock %}
   </body>
+  {% endblock %}
+</html>

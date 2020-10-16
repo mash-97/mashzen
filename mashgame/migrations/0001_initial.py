@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                 ('gender', models.CharField(choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other'), ('secret', 'secret')], default='secret', max_length=7)),
                 ('authorized', models.BooleanField(default=False)),
                 ('visit_count', models.IntegerField(default=0)),
-                ('lucky_number', models.IntegerField(default=3, validators=[mashgame.models.validate_1_to_10])),
+                ('lucky_number', models.IntegerField(default=3, validators=[mashgame.models.user.validate_1_to_10])),
             ],
         ),
         migrations.CreateModel(

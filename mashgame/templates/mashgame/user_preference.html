@@ -1,0 +1,61 @@
+{% include 'mashgame/base.html' %}
+<html>
+{% block body %}
+  <body>
+    <div style="text-align: center">
+      <h3>Your MashGame Preference</h3>
+    </div>
+
+    <div style="text-align: center">
+      <form name="set_preference" action="" method="post" autocomplete="off">
+        {% csrf_token %}
+        {% for pref in prefs %}
+
+          <label for="{{pref.type_name}}_choices" id="js_{{pref.type_name}}_choices_label"><h3>{{pref.type_header}} Choices</h3></label>
+          <select name="{{pref.type_name}}_1_select" id="js_{{pref.type_name}}_1_select" onmousedown="setConSize(this, 4);" onblur="setSize(this, 0);" onchange="setSize(this, 0);">
+
+            {% for opt in pref.opts %}
+              {% if pref.soptid_1 == opt.id %}
+                <option value="{{opt.id}}" selected>{{opt.value}}</option>
+              {% else %}
+                <option value="{{opt.id}}">{{opt.value}}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+          <br><br>
+          <select name="{{pref.type_name}}_2_select" id="js_{{pref.type_name}}_2_select" onmousedown="setConSize(this, 4);" onblur="setSize(this, 0);" onchange="setSize(this, 0);">
+            {% for opt in pref.opts %}
+              {% if pref.soptid_2 == opt.id %}
+                <option value="{{opt.id}}" selected>{{opt.value}}</option>
+              {% else %}
+                <option value="{{opt.id}}" >{{opt.value}}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+          <br>
+          <br>
+          <br>
+        {% endfor %}
+        <label>Lucky Number</label><br>
+        <input type="number" name="lucky_number" min="1" max="9" id="js_lucky_number" placeholder="{{user.lucky_number}}">
+        <br>
+        <br>
+        <br>
+        <button type="submit">Save</button>
+      </form>
+    </div>
+    {% block script %}
+    <script>
+      function setConSize(object, value){
+        if(object.options.length>value)
+          object.size=value;
+      }
+
+      function setSize(object, value){
+        object.size = value;
+      }
+    </script>
+    {% endblock %}
+  </body>
+{% endblock %}
+</html>

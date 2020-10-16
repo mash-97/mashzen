@@ -1,2 +1,3 @@
 <h1>{{ user.user_name }}</h1>
-<h1>{{ user.password }}</h1>
+<a href="{% url 'mashgame:user_preference' user.user_name %}">preference</a>
+<a href="{% url 'mashgame:user_logout' user.user_name%}">logout</a>

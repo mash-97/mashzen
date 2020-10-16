@@ -1,37 +1,25 @@
-{% load static %}
-<!DOCTYPE html>
+{% include 'mashgame/base.html' %}
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mashzen | Mashgame | Signup</title>
-    <script src="{% static 'mashgame/jquery.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href={% static 'mashgame/base.css' %}>
-
-  <head>
-
-
+{% block body %}
   <body>
     <div style="text-align: center">
-      <h1>Mashgame</h1>
       <h3>Signup</h3>
     <div>
-
     <div style="text-align: center">
       <form action="{% url 'mashgame:join_signup_user' %}" name="user_signup_form" method="post" autocomplete="off">
         {% csrf_token %}
         <label for="user_name"><b>Username</b></label>
         <br>
-        <input type="text" placeholder="user name" name="user_name" id="js_user_name" required>
+        <input type="text" placeholder="user name" name="user_name" id="js_user_name" autofocus required>
         <label id="js_user_name_exist_label"></label>
         <br>
         <br>
-        <label for="password"><b>Password</b></label>
+        <label for="password" id="js_password_label"><b>Password</b></label>
         <br>
         <input type="password" placeholder="password" name="password" id="js_password" minlength="4" maxlength="10" required >
         <br>
         <br>
-        <label for="confirm_password"><b>Confirm Password</b></label>
+        <label for="confirm_password" id="js_confirm_password_label"><b>Confirm Password</b></label>
         <br>
         <input type="password" placeholder="confirm password" name="confirm_password" id="js_confirm_password" minlength="4" maxlength="10" onkeyup="check()" required >
         <br>
@@ -39,13 +27,13 @@
         <button type="submit" id="js_signup_button">Signup</button>
       </form>
       <br>
-      <a href="{% url 'mashgame:mashgame' %}">Login</a>
+      <a href="{% url 'mashgame:login' %}">Login</a>
     </div>
 
 
     {% block javascript %}
-      <!-- <script src="{% static 'mashgame/validation.js' %}"></script> -->
       <script>
+        $("#js_user_name").focus();
         $("#js_user_name").keyup(function(){
           var user_name = $(this).val();
 
@@ -58,13 +46,16 @@
             success: function(res_data) {
               if(res_data.is_taken) {
                 document.getElementById("js_user_name").style.borderColor = "red";
+                $("#js_password_label").hide();
                 $("#js_password").hide();
+                $("#js_confirm_password_label").hide();
                 $("#js_confirm_password").hide();
                 $("#js_signup_button").hide();
 
               }
               else{
                 document.getElementById("js_user_name").style.borderColor = "green";
+                $("#js_pass")
                 $("#js_password").show();
                 $("#js_confirm_password").show();
                 $("#js_signup_button").show();
@@ -87,4 +78,5 @@
       </script>
     {% endblock %}
   </body>
+{% endblock %}
 </html>

@@ -12,5 +12,6 @@ urlpatterns = [
     path("joinSignupUser/", views.joinSignupUser, name="join_signup_user"),
     path("<str:user_name>/", views.userProfile, name="user_profile"),
     path("<str:user_name>/preference/", views.userPreference, name="user_preference"),
-    path("<str:user_name>/logout/", views.userLogout, name="user_logout")
+    path("<str:user_name>/logout/", views.userLogout, name="user_logout"),
+    path("<str:user_name>/savePreference/", views.savePreference, name="save_preference")
 ]

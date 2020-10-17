@@ -13,7 +13,7 @@ class AttackManager(models.Manager):
 class Attack(models.Model):
     attacker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_attacks")
     reciever = models.ForeignKey(User, on_delete=models.CASCADE, related_name="recieved_attacks")
-    mash_data = models.OneToOneField(MASHData, on_delete=models.CASCADE)
+    
 
     def __str__(self):
         return attacker.user_name+" --> "+reciever.user_name

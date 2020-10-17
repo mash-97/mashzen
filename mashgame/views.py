@@ -176,7 +176,36 @@ def userPreference(request, user_name):
 
 
 def savePreference(request, user_name):
+    request.session["page_requested"] = "mashgame:user_preference"
 
+    user = getAuthenticatedUser(request, user_name)
+    if not user:
+        return redirect("mashgame:login")
+
+    home_1_id = int(request.POST["selected_home_1"])
+    home_2_id = int(request.POST["selected_home_2"])
+    spouse_1_id = int(request.POST["selected_spouse_1"])
+    spouse_2_id = int(request.POST["selected_spouse_2"])
+    numchild_1_id = int(request.POST["selected_numchild_1"])
+    numchild_2_id = int(request.POST["selected_numchild_2"])
+    luxury_1_id = int(request.POST["selected_luxury_1"])
+    luxury_2_id = int(request.POST["selected_luxury_2"])
+    lucky_number = int(request.POST["lucky_number"])
+
+    mash_data = user.preference.mash_data
+    mash_data.home_1 = Home.objects.get(id=home_1_id)
+    mash_data.home_2 = Home.objects.get(id=home_2_id)
+    mash_data.spouse_1 = Spouse.objects.get(id=spouse_1_id)
+    mash_data.spouse_2 = Spouse.objects.get(id=spouse_2_id)
+    mash_data.numchild_1 = NumChild.objects.get(id=numchild_1_id)
+    mash_data.numchild_2 = NumChild.objects.get(id=numchild_2_id)
+    mash_data.luxury_1 = Luxury.objects.get(id=luxury_1_id)
+    mash_data.luxury_2 = Luxury.objects.get(id=luxury_2_id)
+    mash_data.save()
+    user.lucky_number = lucky_number
+    user.save()
+
+    return redirect("mashgame:user_profile", user_name=user_name)
 
 def userLogout(request, user_name):
     request.session["page_requested"] = None
@@ -191,3 +220,6 @@ def userLogout(request, user_name):
     request.session["user_name"] = None
     request.session["page_requested"] = None
     return redirect("mashgame:login")
+
+def showUsers(request, user_name):
+    pass 

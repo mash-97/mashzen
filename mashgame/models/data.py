@@ -59,3 +59,13 @@ class MASHData(models.Model):
 
     def __str__(self):
         return (self.home_1.value+":"+self.spouse_1.value+":"+self.numchild_1.value+":"+self.luxury_1.value)
+
+
+class ResultMASHData(models.Model):
+    home = models.ForeignKey(Home, on_delete=models.SET_NULL, null=True, related_name="+")
+    spouse = models.ForeignKey(Spouse, on_delete=models.SET_NULL, null=True, related_name="+")
+    numchild = models.ForeignKey(NumChild, on_delete=models.SET_NULL, null=True, related_name="+")
+    luxury = models.ForeignKey(Luxury, on_delete=models.SET_NULL, null=True, related_name="+")
+    mash_value = models.IntegerField(default=0)
+
+    

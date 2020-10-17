@@ -18,11 +18,9 @@ class UserManager(models.Manager):
         try:
             user = User.objects.create(user_name=user_name, password=password)
             if user:
-                print("\tUser created: setting preference: ")
-                # create a default preference
+                """ create a default preference """
                 from .preference import Preference
-                Preference.objects.createAPreferenceWithDefaultMASHData(user)
-                print("\tPreference saved!")
+                Preference.objects.assignWithDefaultMASHDataTo(user)
                 print("\n")
             else:
                 print("\tFailed:\n")
@@ -32,6 +30,9 @@ class UserManager(models.Manager):
             print(e)
             return False
         user.save()
+        return self.get_authorized_user(user_name, password)
+
+    def login(self, user_name, password):
         return self.get_authorized_user(user_name, password)
 
     def get_authorized_user(self, user_name, password):
@@ -48,8 +49,10 @@ class UserManager(models.Manager):
             else:
                 print("\tFailed on authorization!")
                 return None
-        except User.DoesNotExist:
-            print("\tException Happened: ", User.DoesNotExist)
+        except Exception as exception:
+            print("\tException Happened: ", exception)
+            print("\t\texception class: ", exception.__class__)
+
         return None
 
 
@@ -65,7 +68,6 @@ class User(models.Model):
     user_name = models.CharField(max_length=20, unique=True)
     password = models.CharField(max_length=10)
     gender = models.CharField(max_length=7, choices=GENDERS, default=SECRET)
-    authorized = models.BooleanField(default=False)
 
     visit_count = models.IntegerField(default=0)
     lucky_number = models.IntegerField(default=3, validators=[validate_1_to_10])
@@ -78,16 +80,14 @@ class User(models.Model):
         pass
 
     def authorize(self, password):
+        self.visit_count += 1
         if self.password==password:
-            self.authorized = True
             # Create a AuthorizedHash
             # first produce a hash value
             hash_value = hashlib.sha1((self.user_name+str(timezone.now())).encode()).hexdigest()
             authorized_hash = AuthorizedHash(value=hash_value, user=self)
             authorized_hash.save()
         else:
-            self.authorized = False
-            self.save()
             return False
 
         self.save()
@@ -98,6 +98,8 @@ class User(models.Model):
         if authorized_hash.exists():
             authorized_hash.first().delete()
 
+    def hashValues(self):
+        return [hash.value for hash in self.hashes.all()]
 
     def __str__(self):
         return self.user_name

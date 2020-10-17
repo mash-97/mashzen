@@ -4,10 +4,12 @@ from .data import MASHData
 from .user import User
 
 class PreferenceManager(models.Manager):
-    def createAPreferenceWithDefaultMASHData(self, user):
+    def assignWithDefaultMASHDataTo(self, user):
+        print("==> Assigning a default preference for the user: ", user.user_name)
         mash_data = MASHData.objects.getADefaultMASHData()
         preference = Preference(user=user, mash_data=mash_data)
         preference.save()
+        print("==> Preference saved.")
         return preference
 
 class Preference(models.Model):

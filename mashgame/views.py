@@ -13,11 +13,53 @@ def mashgame(request):
     request.session["error_message"] = None
     return render(request, "mashgame/mashgame.html", {"error_message": request.session.get("error_message")})
 
+
+
+def getAuthenticatedUser(request, user_name):
+    # at the top check if any user session is exist
+    if not request.session.get("user_name") or not request.session.get("user_hash"):
+        return None
+
+    # if there's user_name in session data, check if it match with the requested user_name
+    # else return None
+    if request.session["user_name"] != user_name:
+        user_name = request.session["user_name"]
+
+    # get filtered QuerySet
+    query_set = User.objects.filter(user_name__iexact=user_name)
+    # return None if a user with user_name doesn't exist
+    if not query_set.exists():
+        # delete user_name and user_hash form the session data for future clarification
+        request.session["user_name"] = None
+        request.session["user_hash"] = None
+        return None
+    # get the user with user_name
+    user = query_set.first()
+
+    # check registered session hash with current session hash
+    if request.session.get("user_hash") in user.hashValues():
+        return user
+    # else means invalid session data
+    request.session["user_name"] = None
+    request.session["user_hash"] = None
+    return None
+
+
 def login(request):
+    # First check if already a session exists
+    user = getAuthenticatedUser(request, None)
+    if user:
+        return redirect("mashgame:user_profile", user_name=user.user_name)
     return render(request, "mashgame/login.html", {"error_message": request.session.get("error_message")})
 
 def signup(request):
+    # First check if already a session exists
+    user = getAuthenticatedUser(request, None)
+    if user:
+        return redirect("mashgame:user_profile", user_name=user.user_name)
+
     return render(request, "mashgame/signup.html", {"error_message": request.session.get("error_message")})
+
 
 def validate_username(request):
     user_name = request.GET.get("user_name", None)
@@ -77,45 +119,26 @@ def joinLoginUser(request):
     request.session["user_hash"] = user_hash
     request.session["error_message"] = None
 
+    if request.session.get("page_requested"):
+        return redirect(request.session.get("page_requested"), user_name=user.user_name)
+
     return redirect("mashgame:user_profile", user_name=user.user_name)
 
 
-def getAuthenticatedUserAgainstSessionData(request, user_name):
-    # at the top check if any user session is exist
-    if not request.session.get("user_name") or not request.session.get("user_hash"):
-        return None
-
-    # if there's user_name in session data, check if it match with the requested user_name
-    # else return None
-    if request.session["user_name"] != user_name:
-        return None
-
-    # get filtered QuerySet
-    query_set = User.objects.filter(user_name__iexact=user_name)
-    # return None if a user with user_name doesn't exist
-    if not query_set.exists():
-        # delete user_name and user_hash form the session data for future clarification
-        del(request.session["user_name"])
-        del(request.session["user_hash"])
-        return None
-    # get the user with user_name
-    user = query_set.first()
-
-    # check registered session hash with current session hash
-    if request.session.get("user_hash") in [hash.value for hash in user.hashes.all()]:
-        return user
-    return None
-
 def userProfile(request, user_name):
-    user = getAuthenticatedUserAgainstSessionData(request, user_name)
+    request.session["page_requested"] = "mashgame:user_profile"
+    user = getAuthenticatedUser(request, user_name)
     if not user:
-        return redirect("mashgame:mashgame")
+        return redirect("mashgame:login")
+
     return render(request, "mashgame/user_profile.html", {"user": user})
 
+
 def userPreference(request, user_name):
-    user = getAuthenticatedUserAgainstSessionData(request, user_name)
+    request.session["page_requested"] = "mashgame:user_preference"
+    user = getAuthenticatedUser(request, user_name)
     if not user:
-        return redirect("mashgame:mashgame")
+        return redirect("mashgame:login")
 
     class Pref:
         def __init__(self, type_name, type_header, opts, so1i, so2i):
@@ -131,7 +154,6 @@ def userPreference(request, user_name):
         Preference.objects.createAPreferenceWithDefaultMASHData(user=user)
         mash_data = user.preference.mash_data
 
-    print("%%%%%%%%%>>> ", mash_data.home_1.id, mash_data.home_2.id)
     home_pref = Pref("home", "Home", list(Home.objects.all()),
                         mash_data.home_1.id,
                         mash_data.home_2.id)
@@ -154,16 +176,18 @@ def userPreference(request, user_name):
 
 
 def savePreference(request, user_name):
-    pass
+
 
 def userLogout(request, user_name):
-    user = getAuthenticatedUserAgainstSessionData(request, user_name)
+    request.session["page_requested"] = None
+    user = getAuthenticatedUser(request, user_name)
     if not user:
-        return redirect("mashgame:mashgame")
+        return redirect("mashgame:login")
+
 
     user.deauthorizeHash(request.session.get("user_hash"))
     # delete user authentication session data
-    del(request.session["user_hash"])
-    del(request.session["user_name"])
-
+    request.session["user_hash"] = None
+    request.session["user_name"] = None
+    request.session["page_requested"] = None
     return redirect("mashgame:login")

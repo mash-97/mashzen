@@ -9,8 +9,8 @@
     <div style="text-align: center">
       <form action="{% url 'mashgame:join_login_user' %}" name="user_login_form" method="post">
         {% csrf_token %}
-        {% if password_invalid %}
-          <label style="color: red"><b>Password Invalid</b></label>
+        {% if error_message %}
+          <label style="color: red"><b>{{error_message}}</b></label>
           <br>
         {% endif %}
         <label for="user_name"><b>Username</b></label>

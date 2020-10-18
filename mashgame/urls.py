@@ -13,5 +13,9 @@ urlpatterns = [
     path("<str:user_name>/", views.userProfile, name="user_profile"),
     path("<str:user_name>/preference/", views.userPreference, name="user_preference"),
     path("<str:user_name>/logout/", views.userLogout, name="user_logout"),
-    path("<str:user_name>/savePreference/", views.savePreference, name="save_preference")
+    path("<str:user_name>/savePreference/", views.savePreference, name="save_preference"),
+    path("<str:user_name>/sent_attacks/", views.sentAttacks, name="sent_attacks"),
+    path("<str:user_name>/show_users/", views.showUsers, name="show_users"),
+    path("<str:user_name>/sent_attack_details/<int:attack_id>/", views.sentAttackDetails, name="sent_attack_details"),
+
 ]

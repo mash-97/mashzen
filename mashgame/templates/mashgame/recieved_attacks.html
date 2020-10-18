@@ -1,0 +1,35 @@
+{% load mashgame_extras %}
+{% include 'mashgame/base.html' %}
+{% include 'mashgame/user_profile_base.html' %}
+
+<br>
+<div style="text-align: center">
+  <h3>Recieved Attacks</h3>
+</div>
+
+<div style="text-align: center">
+  {% for index, sent_attack in sent_attacks|enum %}
+    <table class="center">
+      <caption><h5>To: {{index}}. {{sent_attack.reciever.user_name}}</h5></caption>
+      <tr>
+        <th>Home Choice 1</th>
+        <td>{{sent_attack.attack_data.home_1.value}}</td>
+      </tr>
+      <tr>
+        <th>Home Choice 2</th>
+        <td>{{sent_attack.attack_data.home_2.value}}</td>
+      </tr>
+      <tr>
+        <th>Spouse Choice 1</th>
+        <td>{{sent_attack.attack_data.spouse_1.value}}</td>
+      </tr>
+      <tr>
+        <th>Spouse Choice 2</th>
+        <td>{{sent_attack.attack_data.spouse_2.value}}</td>
+      </tr>
+    </table>
+    showfull
+    <br>
+    <br>
+  {% endfor %}
+</div>

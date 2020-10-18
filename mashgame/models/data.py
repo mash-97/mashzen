@@ -4,21 +4,19 @@ class Home(models.Model):
     value =  models.CharField(max_length=100, default="Home")
     def __str__(self):
         return self.value
-
 class Spouse(models.Model):
     value =  models.CharField(max_length=100, default="Spouse Name")
     def __str__(self):
         return self.value
-
 class NumChild(models.Model):
     value =  models.CharField(max_length=100, default="Number of Childs")
     def __str__(self):
         return self.value
-
 class Luxury(models.Model):
     value =  models.CharField(max_length=100, default="Luxury")
     def __str__(self):
         return self.value
+
 
 class MASHDataManager(models.Manager):
     DEFAULT_HOME_1 = Home.objects.get(id=1)
@@ -30,7 +28,7 @@ class MASHDataManager(models.Manager):
     DEFAULT_LUXURY_1 = Luxury.objects.get(id=1)
     DEFAULT_LUXURY_2 = Luxury.objects.get(id=3)
 
-    def getADefaultMASHData(self):
+    def getDefault(self):
         mash_data = MASHData(home_1 = MASHDataManager.DEFAULT_HOME_1,
                              home_2 = MASHDataManager.DEFAULT_HOME_2,
                              spouse_1 = MASHDataManager.DEFAULT_SPOUSE_1,
@@ -47,13 +45,10 @@ class MASHData(models.Model):
     objects = MASHDataManager()
     home_1 = models.ForeignKey(Home, on_delete=models.SET_NULL, related_name="+", null=True)
     home_2 = models.ForeignKey(Home, on_delete=models.SET_NULL, related_name="+", null=True)
-
     spouse_1 = models.ForeignKey(Spouse, on_delete=models.SET_NULL, related_name="+", null=True)
     spouse_2 = models.ForeignKey(Spouse, on_delete=models.SET_NULL, related_name="+", null=True)
-
     numchild_1 = models.ForeignKey(NumChild, on_delete=models.SET_NULL, related_name="+", null=True)
     numchild_2 = models.ForeignKey(NumChild, on_delete=models.SET_NULL, related_name="+", null=True)
-
     luxury_1 = models.ForeignKey(Luxury, on_delete=models.SET_NULL, related_name="+", null=True)
     luxury_2 = models.ForeignKey(Luxury, on_delete=models.SET_NULL, related_name="+", null=True)
 
@@ -61,11 +56,23 @@ class MASHData(models.Model):
         return (self.home_1.value+":"+self.spouse_1.value+":"+self.numchild_1.value+":"+self.luxury_1.value)
 
 
-class ResultMASHData(models.Model):
+class ResultDataManager(models.Manager):
+    def getDefault(self):
+        result = ResultData()
+        result.save()
+        return result
+
+
+class ResultData(models.Model):
+    objects = ResultDataManager()
     home = models.ForeignKey(Home, on_delete=models.SET_NULL, null=True, related_name="+")
     spouse = models.ForeignKey(Spouse, on_delete=models.SET_NULL, null=True, related_name="+")
     numchild = models.ForeignKey(NumChild, on_delete=models.SET_NULL, null=True, related_name="+")
     luxury = models.ForeignKey(Luxury, on_delete=models.SET_NULL, null=True, related_name="+")
     mash_value = models.IntegerField(default=0)
+    available = models.BooleanField(default=False)
+    attacker_points = models.IntegerField(default=0)
+    reciever_points = models.IntegerField(default=0)
 
-    
+    def __str__(self):
+        return f"avalable: {self.available}"

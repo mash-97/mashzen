@@ -1,0 +1,58 @@
+{% load mashgame_extras %}
+{% include 'mashgame/base.html' %}
+{% include 'mashgame/user_profile_base.html' %}
+
+
+<br>
+<div style="text-align: center">
+  <h3>Attack Details</h3>
+</div>
+
+<div style="text-align: align">
+
+  <table class="center">
+    <caption><h5>To: {{attack.reciever.user_name}}</h5></caption>
+    <tr>
+      <th><h6>Homes</h6></th>
+      <td>
+        <ol>
+          <li>{{attack.attack_data.home_1.value}}</li>
+          <li>{{attack.attack_data.home_2.value}}</li>
+        </ol>
+      </td>
+    </tr>
+
+    <tr>
+      <th><h6>Spouses</h6></th>
+      <td>
+        <ol>
+          <li>{{attack.attack_data.spouse_1.value}}</li>
+          <li>{{attack.attack_data.spouse_2.value}}</li>
+        </ol>
+      </td>
+    </tr>
+
+    <tr>
+      <th><h6>Number of Childs</h6></th>
+      <td>
+        <ol>
+          <li>{{attack.attack_data.numchild_1.value}}</li>
+          <li>{{attack.attack_data.numchild_2.value}}</li>
+        </ol>
+      </td>
+    </tr>
+
+    <tr>
+      <th><h6>Luxury Items</h6></th>
+      <td>
+        <ol>
+          <li>{{attack.attack_data.luxury_1.value}}</li>
+          <li>{{attack.attack_data.luxury_2.value}}</li>
+        </ol>
+      </td>
+    </tr>
+  </table>
+  <br>
+  Edit
+  <br>
+</div>

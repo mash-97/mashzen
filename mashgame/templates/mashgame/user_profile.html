@@ -1,5 +1,12 @@
 {% include 'mashgame/base.html' %}
+{% include 'mashgame/user_profile_base.html' %}
 
-<h3>User Name: {{ user.user_name }}</h3>
-<a href="{% url 'mashgame:user_preference' user.user_name %}" style="text-decoration: none">preference</a>
-<a href="{% url 'mashgame:user_logout' user.user_name%}" style="text-decoration: none">logout</a>
+<h4>Gender: {{user.gender}}</h4>
+<h4>Lucky Number: {{user.lucky_number}}</h4>
+<a href="{% url 'mashgame:user_preference' user.user_name %}">preference</a>
+<br>
+<a href="{% url 'mashgame:sent_attacks' user.user_name %}">sent attacks</a>
+<br>
+<a href="{% url 'mashgame:show_users' user.user_name %}">show users</a>
+<br>
+<a href="{% url 'mashgame:user_logout' user.user_name %}">logout</a>

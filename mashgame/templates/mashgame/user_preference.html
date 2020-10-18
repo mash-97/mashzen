@@ -1,8 +1,9 @@
 {% include 'mashgame/base.html' %}
+{% include 'mashgame/user_profile_base.html' %}
+<br>
 <html>
 {% block body %}
   <body>
-    <h3>User Name: {{user.user_name}}</h3>
     <div style="text-align: center">
       <h3>Preference</h3>
     </div>
@@ -10,8 +11,8 @@
     <div style="text-align: center">
       <form name="set_preference" action="{% url 'mashgame:save_preference' user.user_name %}" method="post" autocomplete="off">
         {% csrf_token %}
-        {% for pref in prefs %}
 
+        {% for pref in prefs %}
           <label for="{{pref.type_name}}_choices" id="js_{{pref.type_name}}_choices_label"><h4>{{pref.type_header}} Choices</h4></label>
           <select name="selected_{{pref.type_name}}_1" id="js_{{pref.type_name}}_1_select" onmousedown="setConSize(this, 4);" onblur="setSize(this, 0);" onchange="setSize(this, 0);">
 
@@ -37,7 +38,20 @@
           <br>
           <br>
         {% endfor %}
-        <label>Lucky Number</label><br>
+        <label><h4>Gender</h4></label>
+        <select name="gender" id="js_gender_select">
+          {% for gender in genders %}
+            {% if user.gender == gender %}
+              <option value="{{user.gender}}" selected>{{user.gender}}</option>
+            {% else %}
+              <option value="{{gender}}" >{{gender}}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <br>
+        <br>
+        <br>
+        <label><h4>Lucky Number</h4></label>
         <input type="number" name="lucky_number" min="1" max="9" id="js_lucky_number" value="{{user.lucky_number}}" placeholder="{{user.lucky_number}}">
         <br>
         <br>

@@ -1,10 +1,9 @@
-
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
-
 from django.utils import timezone
 import hashlib
+
 
 # validator for integer between 1 to 10
 def validate_1_to_10(value):
@@ -20,7 +19,7 @@ class UserManager(models.Manager):
             if user:
                 """ create a default preference """
                 from .preference import Preference
-                Preference.objects.assignWithDefaultMASHDataTo(user)
+                Preference.objects.assignByDefault(user=user)
                 print("\n")
             else:
                 print("\tFailed:\n")
@@ -39,7 +38,6 @@ class UserManager(models.Manager):
         print("Trying authorization for: ")
         print("\tuser_name: ", user_name)
         print("\tpassword: ", password)
-
         try:
             user = User.objects.get(user_name=user_name)
             print("\tUser Found!")
@@ -52,9 +50,17 @@ class UserManager(models.Manager):
         except Exception as exception:
             print("\tException Happened: ", exception)
             print("\t\texception class: ", exception.__class__)
-
         return None
 
+    def getUsersAgainst(self, user):
+        users_list = list(User.objects.all())
+        users_list.remove(user)
+        for tuser in users_list:
+            if tuser.recievedAttackFrom(user):
+                tuser.attack_status = "attacked"
+            else:
+                tuser.attack_status = "attack"
+        return users_list
 
 
 class User(models.Model):
@@ -63,21 +69,64 @@ class User(models.Model):
     FEMALE = "female"
     OTHER = "other"
     SECRET = "secret"
-    GENDERS = [(MALE, "Male"), (FEMALE, "Female"), (OTHER, "Other"), (SECRET, "secret")]
+    GENDERS = [(MALE, "Male"), (FEMALE, "Female"), (OTHER, "Other"), (SECRET, "Secret")]
 
     user_name = models.CharField(max_length=20, unique=True)
     password = models.CharField(max_length=10)
     gender = models.CharField(max_length=7, choices=GENDERS, default=SECRET)
-
     visit_count = models.IntegerField(default=0)
     lucky_number = models.IntegerField(default=3, validators=[validate_1_to_10])
+
+    def sentAttackOn(self, user):
+        attack = None
+        try:
+            attack = self.sent_attacks.filter(reciever__id=user.id)
+            if attack.exists():
+                attack = attack.first()
+            else:
+                attack = None
+        except Exception as exception:
+            message = f"""Exception Happened on recievedAttacks() call:\n\tException Type: {exception.__class__}\n\tMessage: {exception}"""
+            self.log(message)
+        return attack
+
+    def sentAttacks(self):
+        attacks = None
+        try:
+            attacks = list(self.sent_attacks.all())
+        except Exception as exception:
+            message = f"""Exception Happened on recievedAttacks() call:\n\tException Type: {exception.__class__}\n\tMessage: {exception}"""
+            self.log(message)
+        return attacks
+
+
+    def recievedAttackFrom(self, user):
+        attack = None
+        try:
+            attack = self.recieved_attacks.filter(attacker__id=user.id)
+            if attack.exists():
+                attack = attack.first()
+            else:
+                attack = None
+        except Exception as exception:
+             message = f"""Exception Happened on recievedAttacks() call:\n\tException Type: {exception.__class__}\n\tMessage: {exception}"""
+             self.log(message)
+        return attack
+
+
+    def recievedAttacks(self):
+        attacks = None
+        try:
+            attacks = list(self.recieved_attacks.all())
+        except Exception as exception:
+            message = f"""Exception Happened on recievedAttacks() call:\n\tException Type: {exception.__class__}\n\tMessage: {exception}"""
+            self.log(message)
+        return attacks
+
 
     def log(self, message):
         log = UserLog(message=message, user=self)
         log.save()
-
-    def setAPreference(self):
-        pass
 
     def authorize(self, password):
         self.visit_count += 1
@@ -89,14 +138,15 @@ class User(models.Model):
             authorized_hash.save()
         else:
             return False
-
         self.save()
+        self.log(f"Successful authorization attempt.\n\tHash Value: {authorized_hash.value}")
         return authorized_hash.value
 
     def deauthorizeHash(self, hash_value):
         authorized_hash = self.hashes.filter(value=hash_value)
         if authorized_hash.exists():
             authorized_hash.first().delete()
+            self.log(f"Successful deauthorization of hash value: {hash_value}")
 
     def hashValues(self):
         return [hash.value for hash in self.hashes.all()]
@@ -114,6 +164,9 @@ class AuthorizedHash(models.Model):
 
 
 class UserLog(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="logs")
     creation_time = models.DateTimeField(auto_now=True)
     message = models.CharField(max_length=1024)
+
+    def __str__(self):
+        return self.message

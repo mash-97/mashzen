@@ -17,5 +17,6 @@ urlpatterns = [
     path("<str:user_name>/sent_attacks/", views.sentAttacks, name="sent_attacks"),
     path("<str:user_name>/show_users/", views.showUsers, name="show_users"),
     path("<str:user_name>/sent_attack_details/<int:attack_id>/", views.sentAttackDetails, name="sent_attack_details"),
-
+    path("<str:user_name>/send_attack/<str:reciever_name>", views.sendAttack, name="send_attack"),
+    path("<str:user_name>/save_attack/<str:reciever_name>", views.saveAttack, name="save_attack")
 ]

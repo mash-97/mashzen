@@ -27,7 +27,9 @@
       <td>{{index}}</td>
       <td>{{a_user.user_name}}</td>
       <td>{{a_user.gender}}</td>
-      <td>{{a_user.attack_status}}</td>
+      <td>
+        <a href="{% url 'mashgame:send_attack' user.user_name a_user.user_name %}">{{a_user.attack_status}}</a>
+      </td>
     </tr>
   {% endfor %}
 </table>

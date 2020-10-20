@@ -1,0 +1,54 @@
+{% include 'mashgame/base.html' %}
+{% include 'mashgame/user_profile_base.html' %}
+
+<div style="text-align: center">
+  <h4>Send To: {{reciever.user_name}}</h4>
+  <form name="attack_data" action="{% url 'mashgame:save_attack' user.user_name reciever.user_name %}" method="post" autocomplete="off">
+    {% csrf_token %}
+
+    {% for pref in prefs %}
+      <label for="{{pref.type_name}}_choices" id="js_{{pref.type_name}}_choices_label"><h4>{{pref.type_header}} Choices</h4></label>
+      <select name="selected_{{pref.type_name}}_1" id="js_{{pref.type_name}}_1_select" onmousedown="setConSize(this, 4);" onblur="setSize(this, 0);" onchange="setSize(this, 0);">
+
+        {% for opt in pref.opts %}
+          {% if pref.soptid_1 == opt.id %}
+            <option value="{{opt.id}}" selected>{{opt.value}}</option>
+          {% else %}
+            <option value="{{opt.id}}">{{opt.value}}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <br>or<br>
+      <select name="selected_{{pref.type_name}}_2" id="js_{{pref.type_name}}_2_select" onmousedown="setConSize(this, 4);" onblur="setSize(this, 0);" onchange="setSize(this, 0);">
+        {% for opt in pref.opts %}
+          {% if pref.soptid_2 == opt.id %}
+            <option value="{{opt.id}}" selected>{{opt.value}}</option>
+          {% else %}
+            <option value="{{opt.id}}" >{{opt.value}}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <br>
+      <br>
+      <br>
+    {% endfor %}
+    {% if reciever.attack_status == "attack" %}
+      <button type="submit" name="submit_type" value="send">Send</button>
+    {% else %}
+      <button type="submit" name="submit_type" value="save">Save</button>
+    {% endif %}
+  </form>
+</div>
+
+{% block script %}
+<script>
+  function setConSize(object, value){
+    if(object.options.length>value)
+      object.size=value;
+  }
+
+  function setSize(object, value){
+    object.size = value;
+  }
+</script>
+{% endblock %}

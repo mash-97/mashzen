@@ -3,10 +3,11 @@
 
 <h4>Gender: {{user.gender}}</h4>
 <h4>Lucky Number: {{user.lucky_number}}</h4>
+<h4>You have recieved {{user.recievedAttacks|length}} attacks</h4>
 <a href="{% url 'mashgame:user_preference' user.user_name %}">preference</a>
 <br>
 <a href="{% url 'mashgame:sent_attacks' user.user_name %}">sent attacks</a>
 <br>
-<a href="{% url 'mashgame:show_users' user.user_name %}">show users</a>
+<a href="{% url 'mashgame:show_users' user.user_name %}">send attacks</a>
 <br>
 <a href="{% url 'mashgame:user_logout' user.user_name %}">logout</a>

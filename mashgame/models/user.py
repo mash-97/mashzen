@@ -62,6 +62,13 @@ class UserManager(models.Manager):
                 tuser.attack_status = "attack"
         return users_list
 
+    def getUserAgainst(self, user, reciever_name):
+        users_list = self.getUsersAgainst(user)
+        for u in users_list:
+            if u.user_name==reciever_name:
+                return u
+        return None
+
 
 class User(models.Model):
     objects = UserManager()

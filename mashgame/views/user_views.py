@@ -6,7 +6,8 @@ from django.http import JsonResponse
 from django.urls import reverse
 from mashgame.models import User
 from mashgame.models import Preference
-from mashgame.models import Home, Spouse, NumChild, Luxury
+from mashgame.models import Home, Spouse, NumChild, Luxury, MASHDataManager
+from mashgame.models import Attack 
 from .authentication import getAuthenticatedUser
 
 def mashgame(request):
@@ -143,3 +144,93 @@ def sentAttackDetails(request, user_name, attack_id):
         "attack": attack.first()
     }
     return render(request, "mashgame/sent_attack_details.html", context)
+
+def sendAttack(request, user_name, reciever_name):
+    request.session["page_requested"] = "mashgame:send_attack"
+    user = getAuthenticatedUser(request, user_name)
+    if not user:
+        return redirect("mashgame:login")
+    reciever = User.objects.getUserAgainst(user, reciever_name)
+    if not reciever:
+        return redirect("mashgame:show_users", user_name=user_name)
+
+    sent_attack = user.sentAttackOn(reciever)
+
+    class Pref:
+        def __init__(self, type_name, type_header, opts, so1i, so2i):
+            self.type_name = type_name
+            self.type_header = type_header
+            self.opts = opts
+            self.soptid_1 = so1i
+            self.soptid_2 = so2i
+
+    if sent_attack:
+        home_1_id = sent_attack.attack_data.home_1.id
+        home_2_id = sent_attack.attack_data.home_2.id
+        spouse_1_id = sent_attack.attack_data.spouse_1.id
+        spouse_2_id = sent_attack.attack_data.spouse_2.id
+        numchild_1_id = sent_attack.attack_data.numchild_1.id
+        numchild_2_id = sent_attack.attack_data.numchild_2.id
+        luxury_1_id = sent_attack.attack_data.luxury_1.id
+        luxury_2_id = sent_attack.attack_data.luxury_2.id
+    else:
+        home_1_id = MASHDataManager.DEFAULT_HOME_1.id
+        home_2_id = MASHDataManager.DEFAULT_HOME_2.id
+        spouse_1_id = MASHDataManager.DEFAULT_SPOUSE_1.id
+        spouse_2_id = MASHDataManager.DEFAULT_SPOUSE_2.id
+        numchild_1_id = MASHDataManager.DEFAULT_NUMCHILD_1.id
+        numchild_2_id = MASHDataManager.DEFAULT_NUMCHILD_2.id
+        luxury_1_id = MASHDataManager.DEFAULT_LUXURY_1.id
+        luxury_2_id = MASHDataManager.DEFAULT_LUXURY_2.id
+
+    home_pref = Pref("home", "Home", list(Home.objects.all()),
+                        home_1_id,
+                        home_2_id)
+    spouse_pref = Pref("spouse", "Spouse", list(Spouse.objects.all()),
+                        spouse_1_id,
+                        spouse_2_id)
+    numchild_pref = Pref("numchild", "Number of Child", list(NumChild.objects.all()),
+                        numchild_1_id,
+                        numchild_2_id)
+    luxury_pref = Pref("luxury", "Luxury", list(Luxury.objects.all()),
+                        luxury_1_id,
+                        luxury_2_id)
+
+    prefs = [home_pref, spouse_pref, numchild_pref, luxury_pref]
+    return render(request, "mashgame/send_attack.html", {"user": user, "prefs": prefs, "reciever": reciever})
+
+
+def saveAttack(request, user_name, reciever_name):
+    request.session["page_requested"] = "mashgame:send_attack"
+    user = getAuthenticatedUser(request, user_name)
+    if not user:
+        return redirect("mashgame:login")
+    reciever = User.objects.getUserAgainst(user, reciever_name)
+    if not reciever:
+        return redirect("mashgame:show_users", user_name=user_name)
+
+    sent_attack = user.sentAttackOn(reciever)
+    # assign a default attack if it's first
+    if not sent_attack:
+        sent_attack = Attack.objects.assignByDefault(user, reciever)
+
+    home_1_id = int(request.POST["selected_home_1"])
+    home_2_id = int(request.POST["selected_home_2"])
+    spouse_1_id = int(request.POST["selected_spouse_1"])
+    spouse_2_id = int(request.POST["selected_spouse_2"])
+    numchild_1_id = int(request.POST["selected_numchild_1"])
+    numchild_2_id = int(request.POST["selected_numchild_2"])
+    luxury_1_id = int(request.POST["selected_luxury_1"])
+    luxury_2_id = int(request.POST["selected_luxury_2"])
+
+    sent_attack.attack_data.home_1 = Home.objects.get(id=home_1_id)
+    sent_attack.attack_data.home_2 = Home.objects.get(id=home_2_id)
+    sent_attack.attack_data.spouse_1 = Spouse.objects.get(id=spouse_1_id)
+    sent_attack.attack_data.spouse_2 = Spouse.objects.get(id=spouse_2_id)
+    sent_attack.attack_data.numchild_1 = NumChild.objects.get(id=numchild_1_id)
+    sent_attack.attack_data.numchild_2 = NumChild.objects.get(id=numchild_2_id)
+    sent_attack.attack_data.luxury_1 = Luxury.objects.get(id=luxury_1_id)
+    sent_attack.attack_data.luxury_2 = Luxury.objects.get(id=luxury_2_id)
+    sent_attack.attack_data.save()
+
+    return redirect("mashgame:sent_attack_details", user_name = user.user_name, attack_id=sent_attack.id)

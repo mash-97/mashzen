@@ -1,0 +1,39 @@
+{% load mashgame_extras %}
+{% include 'mashgame/base.html' %}
+{% include 'mashgame/user_profile_base.html' %}
+
+<style>
+  .center{
+    margin-left: auto;
+    margin-right: auto;
+  }
+  table, th, td {
+    padding: 10px;
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+</style>
+
+<table class="center">
+  <caption><h5>Users</h5></caption>
+  <tr>
+    <th>Index</th>
+    <th>User Name</th>
+    <th>Gender</th>
+    <th>Total SentAttack Points</th>
+    <th>Total RecievedAttack Points</th>
+    <th>Total Points</th>
+  </tr>
+  {% for index, a_user in available_users|enum %}
+    <tr>
+      <td>{{index}}</td>
+      <td>{{a_user.user_name}}</td>
+      <td>{{a_user.gender}}</td>
+      <td>{{a_user.tp_sent_attacks}}</td>
+      <td>{{a_user.tp_recieved_attacks}}</td>
+      <td>{{a_user.total_points}}</td>
+    </tr>
+  {% endfor %}
+</table>
+<br>
+<br>

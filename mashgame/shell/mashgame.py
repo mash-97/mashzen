@@ -8,6 +8,14 @@ class SingleEntity:
 
     def deactivate(self):
         self.active = False
+    def activate(self):
+        self.active = True
+
+    def __str__(self):
+        a = ""
+        if self.active:
+            a = " * "
+        return f"({self.user.user_name}:{self.choice.value}){a}"
 
 
 class Block4Entity:
@@ -31,30 +39,72 @@ class Block4Entity:
     def activeNEntities(self, expected_active_entities=1):
         return self.activeEntities[:expected_active_entities]
 
+    def stringOfActiveEntities(self):
+        string = []
+        indx = 0
+        for entity in self.entities:
+            if entity.active:
+                string.append(f"({indx+1}. {entity.__str__()})")
+                indx += 1
+        string = "::".join(string)
+        return string
+
     def deactivate_entity(self, entity):
         entity.deactivate()
         self.active_entities -= 1
 
-    def passBy(self, current_number, start_number=4, end_number=1, incr=-1, expected_active_number=1):
+    def activateAllEntities(self):
+        for entity in self.entities:
+            entity.activate()
+        self.active_entities = self.count_active_entities()
+
+    def passBy(self, current_number, start_number, end_number=1, expected_active_number=1, tabs=""):
+        print("\n")
+        print(tabs+f"For block: {self}")
+        print(tabs+f"Passed cn: {current_number}, sn: {start_number}, en: {end_number}, ean: {expected_active_number}")
         if not ((start_number<=current_number<=end_number) or (start_number>=current_number>=end_number)):
-            raise Exception(f"Current number beyond the boundary:\n\tstart_number: {start_number}\n\tcurrent_number: {current_number}\n\tend_number: {end_number}")
+            raise Exception(tabs+f"Current number beyond the boundary:\n\tstart_number: {start_number}\n\tcurrent_number: {current_number}\n\tend_number: {end_number}")
+
+        incr = -1
+        if end_number-start_number >=1:
+            incr = 1
+        if end_number==start_number:
+            raise Exception(tabs+f"Bound Error: end_number-start_number=0")
+
         for entity in self.entities:
             if self.active_entities==expected_active_number:
+                print(tabs+f"\tNumber of active entities: {self.active_entities} == expected_active_number: {expected_active_number}")
+                print(tabs+f"\tSo returning with value: {current_number}")
                 return current_number
             if entity.active and current_number == end_number:
+                print(tabs+f"\tDeactivating: {entity.__str__()}")
+                print(tabs+f"\tCurrent Number: {current_number}")
                 self.deactivate_entity(entity)
+                print(tabs+f"\tAssigning start_number to current_number: {current_number}")
                 current_number = start_number
             elif entity.active:
+                print(tabs+f"\tFor active entity: {entity.__str__()}")
                 current_number += incr
+                print(tabs+f"\tIncremented current_number: {current_number}")
+        print(tabs+f"returning with current_number: {current_number}")
         return current_number
+
+    def __str__(self):
+        string = []
+        for entity in self.entities:
+            string.append(f"{entity.__str__()}")
+        string = "::".join(string)
+        return string
 
 
 class MashGame:
     def __init__(self, attack):
-        attacker = attack.attacker
+        self.attack = attack
+        self.player_2 = attacker = attack.attacker
         attacker_data = attack.attack_data
-        rcvr = attack.reciever
+        self.player_1 = rcvr = attack.reciever
         rcvr_pref = rcvr.preference.mash_data
+        self.mash_value = self.player_1.lucky_number+self.player_2.lucky_number
         self.homes = Block4Entity(
                                 [
                                     SingleEntity(rcvr, rcvr_pref.home_1),
@@ -92,27 +142,53 @@ class MashGame:
                                 ]
 
         )
+        self.blocks = [self.homes, self.spouses, self.numchilds, self.luxuries]
+        self.previous_result = None
 
+    def turninInitState(self):
+        for block in self.blocks:
+            block.activateAllEntities()
+        self.previous_result = None
 
-    def start(self, cycle_number):
-        print("")
-        blocks = [self.homes, self.spouses, self.numchilds, self.luxuries]
+    def start(self, tabs=""):
+        print(tabs+"Proceeding on MashGame: ")
+        print(tabs+f"\tBetween {self.player_1.user_name} and {self.player_2.user_name}")
+        print(tabs+f"\tWith MashValue: {self.mash_value}")
+        print(tabs+f"\tHomes: {self.homes}")
+        print(tabs+f"\tSpouses: {self.spouses}")
+        print(tabs+f"\tNumber of Childs: {self.numchilds}")
+        print(tabs+f"\tLuxuries: {self.luxuries}")
+
+        blocks = self.blocks.copy()
         indx = 0
+        mash_value = self.mash_value
         while(len(blocks)!=0):
-            cycle_number = blocks[indx].passBy(cycle_number)
+            print(tabs+f"\tindx: {indx}, current_block: #{blocks[indx].__str__()}, mash_value: {mash_value}")
+            mash_value = blocks[indx].passBy(mash_value, start_number=self.mash_value, tabs=tabs+"\t")
+            print(tabs+f"\tafter passing by active entites: in this block: {blocks[indx].stringOfActiveEntities()}")
             if blocks[indx].active_entities==1:
                 blocks.remove(blocks[indx])
             indx += 1
             if indx >= len(blocks):
                 indx = 0
-        result = {
-                    'home': self.homes.activeEntities()[:1],
-                    'spouse': self.spouses.activeEntities()[:1],
-                    'numchild': self.numcilds.activeEntities()[:1],
-                    'luxury': self.luxuries.activeEntities()[:1]
+        self.previous_result = {
+                    'home': self.homes.activeEntities()[0],
+                    'spouse': self.spouses.activeEntities()[0],
+                    'numchild': self.numchilds.activeEntities()[0],
+                    'luxury': self.luxuries.activeEntities()[0]
                  }
-        return result
+        print(tabs+f"\tresult: {self.previous_result}")
+        print("\n\n")
+        return self.previous_result
 
+    def __str__(self, tabs=""):
+        string = tabs+str(self.attack)+"\n"
+        string += tabs+"\t{self.homes.__str__()}\n"
+        string += tabs+"\t{self.spouses.__str__()}\n"
+        string += tabs+"\t{self.numchilds.__str__()}\n"
+        string += tabs+"\t{self.luxuries.__str__()}\n"
+        if self.previous_result:
+            string += tabs+"\tprevious_result: {self.previous_result}"
 
 
 def count_matches(user, result):
@@ -139,32 +215,44 @@ def generateResultDataForAllAttack():
         else:
             indx += 1
 
+    c = 0
+    print(f"Total {len(attacks)} attacks found")
     for attack in attacks:
-        if not attack.reasult_data==None:
+        print(f"{attack}: ")
+        if not attack.result_data==None:
+            print(f"\tA result already found!")
             continue
 
-        mash_value = attack.attacker.lucky_number+attack.reciever.lucky_number
+        print(f"\tProceeding on mashgame engine: ", end="")
         mashgame = MashGame(attack)
-        result = mashgame.start(mash_value)
-
+        result = mashgame.start(tabs="\t")
+        print(f"result produced-> {[result[k].__str__() for k in result]}")
         # generate result_data
         attacker_points = count_matches(attack.attacker, result)
         reciever_points = count_matches(attack.reciever, result)
 
         try:
             result_data = ResultData(
-                                        home = result["home"],
-                                        spouse = result["spouse"],
-                                        numchild = result["numchild"],
-                                        luxury = result["luxury"],
+                                        home = result["home"].choice,
+                                        spouse = result["spouse"].choice,
+                                        numchild = result["numchild"].choice,
+                                        luxury = result["luxury"].choice,
                                         available = True,
-                                        mash_value = mash_value,
+                                        mash_value = mashgame.mash_value,
                                         attacker_points = attacker_points,
                                         reciever_points = reciever_points
             )
             result_data.save()
+            attack.result_data = result_data
+            attack.save()
         except Exception as e:
-            print(f"Exception happened: for attack: {attack}")
+            print(f"\tException happened: for attack: {attack}")
             print("\t", e)
             print("\t", str(e.__class__))
             continue
+        print(f"\tResultData saved! id: {result_data.id}")
+        print(f"\tPoints:: {attack.reciever}: {result_data.reciever_points}, {attack.attacker}: {result_data.attacker_points}")
+        c += 1
+
+    print(f"\n-------__> Total successful result_data produced: {c}")
+    print(f"\n-------__> Unsuccessful: {len(attacks)-c}")

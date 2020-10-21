@@ -7,7 +7,7 @@ from django.urls import reverse
 from mashgame.models import User
 from mashgame.models import Preference
 from mashgame.models import Home, Spouse, NumChild, Luxury, MASHDataManager
-from mashgame.models import Attack 
+from mashgame.models import Attack
 from .authentication import getAuthenticatedUser
 
 def mashgame(request):
@@ -234,3 +234,15 @@ def saveAttack(request, user_name, reciever_name):
     sent_attack.attack_data.save()
 
     return redirect("mashgame:sent_attack_details", user_name = user.user_name, attack_id=sent_attack.id)
+
+
+def rankList(request, user_name):
+    request.session["page_requested"] = "mashgame:rank_list"
+    user = getAuthenticatedUser(request, user_name)
+    if not user:
+        return redirect("mashgame:login")
+    context = {
+        "user": user,
+        "available_users": User.objects.getSortedUsersBasedOnResult()
+    }
+    return render(request, "mashgame/rank_list.html", context)

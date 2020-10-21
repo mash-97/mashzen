@@ -69,6 +69,32 @@ class UserManager(models.Manager):
                 return u
         return None
 
+    def getSortedUsersBasedOnResult(self):
+        users_list = list(User.objects.all())
+
+        for u in users_list:
+            # add attribute as total_points, tp_recieved_attacks, tp_sent_attacks
+            u.total_points = 0
+            u.tp_recieved_attacks = 0
+            u.tp_sent_attacks = 0
+            # produce points from recieved_attacks
+            attacks = u.recievedAttacks()
+            for recieved_attack in attacks:
+                if recieved_attack.result_data:
+                    u.tp_recieved_attacks += recieved_attack.result_data.reciever_points
+                    u.total_points += u.tp_recieved_attacks
+
+            # produce points from sent_attacks
+            attacks = u.sentAttacks()
+            for sent_attack in attacks:
+                if sent_attack.result_data:
+                    u.tp_sent_attacks += sent_attack.result_data.attacker_points
+                    u.total_points += u.tp_sent_attacks
+
+        # sort based on total_points attribute
+        users_list.sort(key = lambda x: x.total_points, reverse=True)
+        return users_list
+
 
 class User(models.Model):
     objects = UserManager()

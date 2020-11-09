@@ -199,6 +199,13 @@ def count_matches(user, result):
     return count
 
 
+def deleteAllResults():
+    ResultData.objects.all().delete()
+def deleteAllAttacks():
+    Attack.objects.all().delete()
+
+
+
 def generateResultDataForAllAttack():
     check = input("tell me your name: ")
     if not check == "mash":
@@ -219,9 +226,13 @@ def generateResultDataForAllAttack():
     print(f"Total {len(attacks)} attacks found")
     for attack in attacks:
         print(f"{attack}: ")
-        if not attack.result_data==None:
-            print(f"\tA result already found!")
-            continue
+        # try:
+        #     if not attack.result_data==None:
+        #         print(f"\tA result already found!")
+        #         continue
+        # except:
+        #     print("Exception happend!")
+        #     continue
 
         print(f"\tProceeding on mashgame engine: ", end="")
         mashgame = MashGame(attack)
@@ -240,10 +251,10 @@ def generateResultDataForAllAttack():
                                         available = True,
                                         mash_value = mashgame.mash_value,
                                         attacker_points = attacker_points,
-                                        reciever_points = reciever_points
+                                        reciever_points = reciever_points,
+                                        attack = attack
             )
             result_data.save()
-            attack.result_data = result_data
             attack.save()
         except Exception as e:
             print(f"\tException happened: for attack: {attack}")

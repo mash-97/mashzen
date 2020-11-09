@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 import hashlib
 
+import mashgame
 
 # validator for integer between 1 to 10
 def validate_1_to_10(value):
@@ -80,17 +81,21 @@ class UserManager(models.Manager):
             # produce points from recieved_attacks
             attacks = u.recievedAttacks()
             for recieved_attack in attacks:
-                if recieved_attack.result_data:
-                    u.tp_recieved_attacks += recieved_attack.result_data.reciever_points
-                    u.total_points += u.tp_recieved_attacks
+                try:
+                    if recieved_attack.result_data:
+                        u.tp_recieved_attacks += recieved_attack.result_data.reciever_points
+                except mashgame.models.attack.Attack.result_data.RelatedObjectDoesNotExist:
+                    continue
 
             # produce points from sent_attacks
             attacks = u.sentAttacks()
             for sent_attack in attacks:
-                if sent_attack.result_data:
-                    u.tp_sent_attacks += sent_attack.result_data.attacker_points
-                    u.total_points += u.tp_sent_attacks
-
+                try:
+                    if sent_attack.result_data:
+                        u.tp_sent_attacks += sent_attack.result_data.attacker_points
+                except mashgame.models.attack.Attack.result_data.RelatedObjectDoesNotExist:
+                    continue
+            u.total_points = u.tp_sent_attacks + u.tp_recieved_attacks
         # sort based on total_points attribute
         users_list.sort(key = lambda x: x.total_points, reverse=True)
         return users_list

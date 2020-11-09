@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Home(models.Model):
     value =  models.CharField(max_length=100, default="Home")
     def __str__(self):
@@ -54,25 +55,3 @@ class MASHData(models.Model):
 
     def __str__(self):
         return (self.home_1.value+":"+self.spouse_1.value+":"+self.numchild_1.value+":"+self.luxury_1.value)
-
-
-class ResultDataManager(models.Manager):
-    def getDefault(self):
-        result = ResultData()
-        result.save()
-        return result
-
-
-class ResultData(models.Model):
-    objects = ResultDataManager()
-    home = models.ForeignKey(Home, on_delete=models.SET_NULL, null=True, related_name="+")
-    spouse = models.ForeignKey(Spouse, on_delete=models.SET_NULL, null=True, related_name="+")
-    numchild = models.ForeignKey(NumChild, on_delete=models.SET_NULL, null=True, related_name="+")
-    luxury = models.ForeignKey(Luxury, on_delete=models.SET_NULL, null=True, related_name="+")
-    mash_value = models.IntegerField(default=0)
-    available = models.BooleanField(default=False)
-    attacker_points = models.IntegerField(default=0)
-    reciever_points = models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"avalable: {self.available}"
